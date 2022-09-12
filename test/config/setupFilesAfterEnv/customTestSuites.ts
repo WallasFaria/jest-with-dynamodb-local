@@ -52,19 +52,24 @@ test.recordNetwork = async (
   return test(name, execution as any, timeout);
 }
 
-const handleResponse = (file: string) => {
-  const requests = JSON.parse(fs.readFileSync(file).toString())
-    .filter((request: any) => {
-      return !NETWORK_ALLOWED_HOSTS.some(host => request.scope.includes(host))
-    })
-    .map((request: any) => {
-      request.headers = {}
-      for (let index = 0; index < request.rawHeaders.length; index += 2) {
-        request.headers[request.rawHeaders[index]] = request.rawHeaders[index + 1]
-      }
-      delete request.rawHeaders
-      return request
-    })
+  const readRequestsFromFile = () => JSON.parse(fs.readFileSync(file).toString())
+
+  const removeAllowedHosts = (request: any) => {
+    return !NETWORK_ALLOWED_HOSTS.some(host => request.scope.includes(host))
+  }
+
+  const useObjectHeaders = (request: any) => {
+    request.headers = {}
+    for (let index = 0; index < request.rawHeaders.length; index += 2) {
+      request.headers[request.rawHeaders[index]] = request.rawHeaders[index + 1]
+    }
+    delete request.rawHeaders
+    return request
+  }
+
+  const requests = readRequestsFromFile()
+    .filter(removeAllowedHosts)
+    .map(useObjectHeaders)
 
   fs.writeFileSync(file, JSON.stringify(requests, undefined, 2))
 }
