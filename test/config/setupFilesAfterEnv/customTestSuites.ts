@@ -6,7 +6,7 @@ import { NETWORK_ALLOWED_HOSTS } from './disableNetwork'
 
 const FIXTURES_FOLDER_NAME = 'networkMocks'
 
-test.withMockNetwork = async (
+test.mockNetwork = async (
   name: string,
   fn?: jest.ProvidesCallback,
   timeout?: number,
@@ -45,13 +45,14 @@ test.recordNetwork = async (
       const { nockDone } = await back(fileName)
       await fn(...args)
       nockDone()
-      handleResponse(file)
+      handleRequests(file)
     }
   }
 
   return test(name, execution as any, timeout);
 }
 
+const handleRequests = (file: string) => {
   const readRequestsFromFile = () => JSON.parse(fs.readFileSync(file).toString())
 
   const removeAllowedHosts = (request: any) => {

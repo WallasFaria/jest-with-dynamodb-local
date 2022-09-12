@@ -2,7 +2,7 @@
 
 declare namespace jest {
   interface It {
-    withMockNetwork: (
+    mockNetwork: (
       name: string,
       fn?: ProvidesCallback,
       timeout?: number,
